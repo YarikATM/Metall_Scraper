@@ -20,6 +20,8 @@ async def add_query(db, pricelist):
                    "WHERE t2.time IS NULL"
 
     res = await db.execute_query(query_select)
+    if len(res) == 0:
+        return
     res2 = []
     for i in res:
         res2.append(i[2:])
