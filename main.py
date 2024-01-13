@@ -5,8 +5,9 @@ from config import config
 from db import Database
 import asyncio
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+import sys
 
-logging.basicConfig(level=logging.INFO, filename="metall.log", filemode="a",
+logging.basicConfig(level=logging.INFO, filename="scraper.log", filemode="a",
                     format="%(asctime)s %(levelname)s %(message)s")
 
 
@@ -32,6 +33,7 @@ def main():
 
     setup_scheduler(db)
 
+    sys.stdout.write("Parser Online!\n")
     try:
         loop.run_forever()
     except KeyboardInterrupt:
