@@ -5,10 +5,17 @@ from config import config
 from db import Database
 import asyncio
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-import sys
 
-logging.basicConfig(level=logging.INFO, filename="scraper.log", filemode="a",
-                    format="%(asctime)s %(levelname)s %(message)s")
+
+
+def setup_logging() -> None:
+    if config.DEBUG:
+        logging.basicConfig(level=logging.DEBUG, filename="scraper.log", filemode="a",
+                            format="%(asctime)s %(levelname)s %(message)s")
+    else:
+        logging.basicConfig(level=logging.INFO, filemode="a",
+                            format="%(asctime)s %(levelname)s %(message)s")
+
 
 
 def setup_scheduler(db: Database, ) -> None:
@@ -26,6 +33,7 @@ async def setup_database(loop) -> Database:
 
 
 def main():
+    setup_logging()
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
 
@@ -33,12 +41,11 @@ def main():
 
     setup_scheduler(db)
 
-    sys.stdout.write("Parser Online!\n")
+
     try:
         loop.run_forever()
     except KeyboardInterrupt:
         pass
-
 
 
 if __name__ == '__main__':

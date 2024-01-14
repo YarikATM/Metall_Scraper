@@ -1,7 +1,7 @@
 import aiomysql
 import logging
 import asyncio
-import sys
+
 
 class Database:
     def __init__(self, loop, host, user, password, pool_size=5,):
@@ -25,10 +25,10 @@ class Database:
                 maxsize=self.pool_size,
             )
             logging.info('Database connection succeed')
-            sys.stdout.write("Database connection succeed!\n")
+
         except Exception as e:
             logging.error(f'DB error: {str(e)}')
-            sys.stderr.write(f'DB error: {str(e)}\n')
+
             self.pool = None
 
     async def execute_query(self, query, args=None):
