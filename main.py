@@ -1,8 +1,7 @@
 import logging
-import time
-from Scraper.Scraper import Run
-from config import config
-from db import Database
+from app.Scraper import Run
+from app.env_reader_config import config
+from app.db import Database
 import asyncio
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
@@ -10,7 +9,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 def setup_logging() -> None:
     if config.DEBUG:
-        logging.basicConfig(level=logging.DEBUG, filename="scraper.log", filemode="a",
+        logging.basicConfig(level=logging.DEBUG, filemode="a",
                             format="%(asctime)s %(levelname)s %(message)s")
     else:
         logging.basicConfig(level=logging.INFO, filemode="a",
