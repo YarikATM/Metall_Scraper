@@ -41,10 +41,9 @@ def main():
     setup_scheduler(db)
 
 
-    try:
-        loop.run_forever()
-    except KeyboardInterrupt:
-        pass
+
+    loop.run_forever()
+
 
 
 if __name__ == '__main__':
