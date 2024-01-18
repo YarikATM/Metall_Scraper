@@ -1,5 +1,5 @@
-from app.SoupScraper import parce
-from app.Cities import Ekaterinburg, Krasnoyarsk, Tyumen, St_Petersburg, Chelyabinsk, Surgut
+from SoupScraper import parce
+from Cities import Ekaterinburg, Krasnoyarsk, Tyumen, St_Petersburg, Chelyabinsk, Surgut
 import datetime
 import logging
 import time
