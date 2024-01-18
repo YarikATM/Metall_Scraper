@@ -1,5 +1,5 @@
-FROM python:3.10 as builder
-LABEL authors="yaroslav"
+FROM python:3.10
+
 
 COPY . .
 
