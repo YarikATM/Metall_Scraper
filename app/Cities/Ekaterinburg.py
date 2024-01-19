@@ -1,234 +1,205 @@
 import logging
+from Base import Company, try_table
 
 
+class Grand(Company):
 
-class Grand:
-    def __init__(self):
-        self.name = "Гранд"
-        self.city = "Екатеринбург"
+    @try_table
+    def parse_table(self, soups):
 
-    def get_soup(self, soups):
-        try:
+        soup = soups[self.city][self.name]
+        table = soup.find('ul', class_="company-products-gallery").findAll("li")
+        return table
 
-            soup = soups[self.city][self.name]
-            table = soup.find('ul', class_="company-products-gallery").findAll("li")
-
-
-
-            return table
-
-        except Exception as e:
-
-            logging.error(self.name + ' | ' + str(e))
-            return None
 
     def parse_data(self, soups):
 
-        table = self.get_soup(soups)
-        price_data = list()
+        table = self.parse_table(soups)
+        price_data = []
 
         if table is not None:
-            try:
-                for li in table:
+            for li in table:
 
-                    title_raw = li.find(class_='cpgi-title-wrapper').text.strip()
-                    if title_raw == 'Прием цветного металлолома, медь (микс),':
-                        title = 'Медь (микс)'
-                    elif title_raw == 'Прием цветного металлолома, медь (блеск),':
-                        title = 'Медь (блеск)'
-                    else:
-                        continue
-                    price = li.find(class_='bp-price fsn').text.strip()
-                    price_ur = 0
-                    price_data.append([self.city, self.name, title, price, price_ur])
+                title = self.Normalize_name(li.find(class_='cpgi-title-wrapper').text.strip())
+                if title is None:
+                    continue
 
-                return price_data
+                price = self.Normalize_price(li.find(class_='bp-price fsn').text.strip())
+                if price is None:
+                    continue
 
-            except Exception as e:
-                logging.error(self.name + ' | ' + str(e))
-                return None
+                price_ur = self.Normalize_price(0)
+                if price_ur is None:
+                    continue
+
+                price_data.append([self.city, self.name, title, price, price_ur])
+
+        return price_data
 
 
-class Texnosplav:
-    def __init__(self):
-        self.name = "Техносплав"
-        self.city = "Екатеринбург"
 
 
-    def get_soup(self, soups):
-        try:
+class Texnosplav(Company):
 
-            soup = soups[self.city][self.name]
-            table = soup.find('table', class_='table1').find('tbody').findAll("tr")
 
-            return table
+    @try_table
+    def parse_table(self, soups):
 
-        except Exception as e:
+        soup = soups[self.city][self.name]
+        table = soup.find('table', class_='table1').find('tbody').findAll("tr")
+        return table
 
-            logging.error(self.name + ' | ' + str(e))
-            return None
 
     def parse_data(self, soups):
 
-        table = self.get_soup(soups)
-        price_data = list()
+        table = self.parse_table(soups)
+        price_data = []
 
         if table is not None:
-            try:
-                for tr in table[4:8]:
-                    raw_data = tr.findAll('td')
-                    title_raw = raw_data[0].text.split(' ')
-                    title = title_raw[0] + ' ' + '(' + title_raw[1] + ')'
-                    price = raw_data[2].text.strip().replace(' р.', '')
-                    price_ur = 0
-                    if title in ["Медь (блеск)", "Медь (кусок)", "Медь (микс)"]:
-                        price_data.append([self.city, self.name, title, price, price_ur])
+            for tr in table[4:8]:
+                td = tr.findAll('td')
 
-                return price_data
+                title = self.Normalize_name(td[0].text.strip())
+                if title is None:
+                    continue
 
-            except Exception as e:
-                logging.error(self.name + ' | ' + str(e))
-                return None
+                price = self.Normalize_price(td[2].text.strip().replace(' р.', ''))
+                if price is None:
+                    continue
 
+                price_ur = self.Normalize_price(0)
+                if price_ur is None:
+                    continue
 
-class Rmm:
-    def __init__(self):
-        self.name = "РММ"
-        self.city = "Екатеринбург"
+                price_data.append([self.city, self.name, title, price, price_ur])
+
+        return price_data
 
 
-    def get_soup(self, soups):
-        try:
 
-            soup = soups[self.city][self.name]
-            table = soup.find('table', id="table-id3").find('tbody').findAll('tr')
 
-            return table
+class Rmm(Company):
 
-        except Exception as e:
 
-            logging.error(self.name + ' | ' + str(e))
-            return None
+    @try_table
+    def parse_table(self, soups):
+
+        soup = soups[self.city][self.name]
+        table = soup.find('table', id="table-id3").find('tbody').findAll('tr')
+        return table
+
 
     def parse_data(self, soups):
 
-        table = self.get_soup(soups)
-        price_data = list()
+        table = self.parse_table(soups)
+        price_data = []
 
         if table is not None:
-            try:
-                for tr in table[1:8]:
-                    tds = tr.findAll('td')
-                    title = tds[0].find('span').text.replace('Лом меди mix М4', 'Медь (микс)') \
-                        .replace('Лом меди М1', 'Медь (блеск)').replace('Лом меди М2', 'Медь (кусок)')
-                    if title in ["Медь (блеск)", "Медь (кусок)", "Медь (микс)"]:
-                        price = tds[2].text.strip()
-                        price_ur = tds[3].text.strip()
+            for tr in table[1:8]:
+                tds = tr.findAll('td')
 
-                        price_data.append([self.city, self.name, title, price, price_ur])
+                title = self.Normalize_name(tds[0].find('span').text.strip())
+                if title is None:
+                    continue
 
-                return price_data
+                price = self.Normalize_price(tds[2].text.strip())
+                if price is None:
+                    continue
 
-            except Exception as e:
-                logging.error(self.name + ' | ' + str(e))
-                return None
+                price_ur = self.Normalize_price(tds[3].text.strip())
+                if price_ur is None:
+                    continue
 
+                price_data.append([self.city, self.name, title, price, price_ur])
 
-class Mida:
-    def __init__(self):
-        self.name = "МИДА"
-        self.city = "Екатеринбург"
+        return price_data
 
 
-    def get_soup(self, soups):
-        try:
 
-            soup = soups[self.city][self.name]
-            table = soup.find(class_="row-hover").findAll('tr')
 
-            return table
+class Mida(Company):
 
-        except Exception as e:
 
-            logging.error(self.name + ' | ' + str(e))
-            return None
+    @try_table
+    def parse_table(self, soups):
+
+        soup = soups[self.city][self.name]
+        table = soup.find(class_="row-hover").findAll('tr')
+        return table
+
 
     def parse_data(self, soups):
 
-        table = self.get_soup(soups)
-        price_data = list()
+        table = self.parse_table(soups)
+        price_data = []
 
         if table is not None:
-            try:
-                for tr in table[1:4]:
-                    tds = tr.findAll('td')
-                    title = tds[1].find('h4').text.strip().replace('Медь 3', 'Медь (микс)') \
-                        .replace('Медь 1', 'Медь (блеск)').replace('Медь 2', 'Медь (кусок)')
+            for tr in table[1:4]:
+                tds = tr.findAll('td')
 
-                    price = tds[-1].text.strip().replace(',', '.')
-                    price_ur = tds[-2].text.strip().replace(',', '.')
+                title = self.Normalize_name(tds[1].find('h4').text.strip())
+                if title is None:
+                    continue
 
-                    price_data.append([self.city, self.name, title, price, price_ur])
+                price = self.Normalize_price(tds[-1].text.strip().replace(',', '.'))
+                if price is None:
+                    continue
 
-                return price_data
+                price_ur = self.Normalize_price(tds[-2].text.strip().replace(',', '.'))
+                if price_ur is None:
+                    continue
 
+                price_data.append([self.city, self.name, title, price, price_ur])
 
-            except Exception as e:
-                logging.error(self.name + ' | ' + str(e))
-                return None
-
-
-class Stimul:
-    def __init__(self):
-        self.name = "Стимул"
-        self.city = "Екатеринбург"
+        return price_data
 
 
-    def get_soup(self, soups):
-        try:
 
-            soup = soups[self.city][self.name]
-            table = soup.find('table').find('tbody').findAll('tr')
+class Stimul(Company):
 
-            return table
 
-        except Exception as e:
+    @try_table
+    def parse_table(self, soups):
 
-            logging.error(self.name + ' | ' + str(e))
-            return None
+        soup = soups[self.city][self.name]
+        table = soup.find('table').find('tbody').findAll('tr')
+        return table
+
 
     def parse_data(self, soups):
 
-        table = self.get_soup(soups)
-        price_data = list()
+        table = self.parse_table(soups)
+        price_data = []
 
         if table is not None:
-            try:
-                for li in table[:7]:
-                    tbl = li.findAll('td')
-                    title = tbl[0].text.strip().replace('\xa0', '').replace('Медь А1-1 (блеск)', 'Медь (блеск)') \
-                        .replace('Медь А1-1а (кусок)', 'Медь (кусок)').replace('Медь А1-2 (микс)', 'Медь (микс)')
+            for li in table[:4]:
+                td = li.findAll('td')
 
-                    price = tbl[1].text.strip().replace("руб.Б/Н", '')
-                    price_ur = 0
+                title = self.Normalize_name(td[0].text.strip().replace('\xa0', ''))
+                if title is None:
+                    continue
 
-                    if title in ["Медь (блеск)", "Медь (кусок)", "Медь (микс)"]:
-                        price_data.append([self.city, self.name, title, price, price_ur])
+                price = self.Normalize_price(td[1].text.strip().replace("руб.Б/Н", ''))
+                if title is None:
+                    continue
 
-                return price_data
+                price_ur = self.Normalize_price(0)
+                if title is None:
+                    continue
 
-            except Exception as e:
-                logging.error(self.name + ' | ' + str(e))
-                return None
+                price_data.append([self.city, self.name, title, price, price_ur])
+
+        return price_data
+
 
 
 def GetCompanies() -> list:
     return [
-        Grand(),
-        Texnosplav(),
-        Rmm(),
-        Mida(),
-        Stimul(),
+        Grand("Гранд", "Екатеринбург"),
+        Texnosplav("Техносплав", "Екатеринбург"),
+        Rmm("РММ", "Екатеринбург"),
+        Mida("МИДА", "Екатеринбург"),
+        Stimul("Стимул", "Екатеринбург"),
 
     ]
 

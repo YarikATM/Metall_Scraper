@@ -1,99 +1,81 @@
 import logging
+from Base import try_table, Company
 
 
-class Intermet:
-    def __init__(self):
-        self.name = "Интермет"
-        self.city = "Санкт-Петербург"
+class Intermet(Company):
 
-    def get_soup(self, soups):
-        try:
+    @try_table
+    def parse_table(self, soups):
 
-            soup = soups[self.city][self.name]
-            table = soup.find(class_="price-table__body table-body").find("div").findAll(class_='price-table__row catrgory-item')
-
-
-            return table
-
-        except Exception as e:
-
-            logging.error(self.name + ' | ' + str(e))
-            return []
+        soup = soups[self.city][self.name]
+        table = soup.find(class_="price-table__body table-body").find("div").findAll(
+            class_='price-table__row catrgory-item')
+        return table
 
     def parse_data(self, soups):
 
-        table = self.get_soup(soups)
-        price_data = list()
+        table = self.parse_table(soups)
+        price_data = []
 
         if table is not None:
-            try:
-                for div in table:
+            for div in table[:6]:
+                block = div.findAll("div")
+
+                title = self.Normalize_name(block[0].text.strip())
+                if title is None:
+                    continue
+
+                price = self.Normalize_price(block[5].text.strip())
+                if price is None:
+                    continue
+
+                price_ur = self.Normalize_price(block[7].text.strip())
+                if price_ur is None:
+                    continue
+
+                price_data.append([self.city, self.name, title, price, price_ur])
+
+        return price_data
 
 
-                    block = div.findAll("div")
+class Metalist(Company):
 
-                    if len(block) != 0:
+    @try_table
+    def parse_table(self, soups):
 
-                        title = block[0].text.strip().replace('Медь микс', 'Медь (микс)') \
-                            .replace('Медь кусок', 'Медь (кусок)').replace('Медь блеск', 'Медь (блеск)')
-                        price = block[5].text.strip()
-                        price_ur = block[7].text.strip()
-
-                        if title in ["Медь (блеск)", "Медь (кусок)", "Медь (микс)"]:
-                            price_data.append([self.city, self.name, title, price, price_ur])
-
-                return price_data
-
-            except Exception as e:
-                logging.error(self.name + ' | ' + str(e))
-                return []
-
-
-class Metalist:
-    def __init__(self):
-        self.name = "Металист"
-        self.city = "Санкт-Петербург"
-
-    def get_soup(self, soups):
-        try:
-
-            soup = soups[self.city][self.name]
-            table = soup.find(class_='price-table').find('tbody').findAll('tr')
-
-            return table
-
-        except Exception as e:
-
-            logging.error(self.name + ' | ' + str(e))
-            return None
+        soup = soups[self.city][self.name]
+        table = soup.find(class_='price-table').find('tbody').findAll('tr')
+        return table
 
     def parse_data(self, soups):
 
-        table = self.get_soup(soups)
-        price_data = list()
+        table = self.parse_table(soups)
+        price_data = []
 
         if table is not None:
-            try:
-                for tr in table[:3]:
-                    page = tr.findAll('td')
-                    title = page[1].text.strip().replace('Медь блестящая', 'Медь (блеск)')
-                    title = title.replace('Медь кусковая', 'Медь (кусок)')
-                    title = title.replace('Медный микс', 'Медь (микс)')
-                    price = page[2].text.strip()
-                    price_ur = page[3].text.strip()
+            for tr in table[:3]:
+                page = tr.findAll('td')
 
-                    price_data.append([self.city, self.name, title, price, price_ur])
+                title = self.Normalize_name(page[1].text.strip())
+                if title is None:
+                    continue
 
-                return price_data
+                price = self.Normalize_price(page[2].text.strip())
+                if price is None:
+                    continue
 
-            except Exception as e:
-                logging.error(self.name + ' | ' + str(e))
-                return None
+                price_ur = self.Normalize_price(page[3].text.strip())
+                if price_ur is None:
+                    continue
+
+                price_data.append([self.city, self.name, title, price, price_ur])
+
+        return price_data
 
 
 def GetCompanies() -> list:
     return [
-        Intermet(),
-        Metalist(),
+        Intermet("Интермет", "Санкт-Петербург"),
+        Metalist("Металист", "Санкт-Петербург"),
 
     ]

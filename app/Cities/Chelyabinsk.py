@@ -1,152 +1,118 @@
 import logging
+from Base import Company, try_table
 
 
+class Dominant(Company):
 
-class Dominant:
-    def __init__(self):
-        self.name = "Доминант"
-        self.city = "Челябинск"
+    @try_table
+    def parse_table(self, soups):
+
+        soup = soups[self.city][self.name]
+        table = soup.find(class_="welcome").find(class_="inner").find(class_='price').findAll(class_='price__line')
+        return table
+
+    def parse_data(self, soups) -> list:
+
+        table = self.parse_table(soups)
+        data = []
+
+        if table is not None:
+            for div in table[:3]:
+                spans = div.findAll('span')
+
+                title = self.Normalize_name(spans[0].text)
+                if title is None:
+                    continue
+
+                price = self.Normalize_price(spans[1].text.strip().replace(' ₽', ''))
+                if price is None:
+                    continue
+
+                price_ur = self.Normalize_price(spans[2].text.strip().replace(' ₽', ''))
+                if price_ur is None:
+                    continue
+
+                data.append([self.city, self.name, title, price, price_ur])
+
+        return data
 
 
-    def get_soup(self, soups):
-        try:
+class Vtormet(Company):
 
-            soup = soups[self.city][self.name]
-            table = soup.find(class_="welcome").find(class_="inner").find(class_='price').findAll(class_='price__line')
+    @try_table
+    def parse_table(self, soups):
 
-            return table
-
-        except Exception as e:
-
-            logging.error(self.name + ' | ' + str(e))
-            return None
+        soup = soups[self.city][self.name]
+        table = soup.find(class_="price__content", id='17').find(class_='price__content-list').findAll(
+            class_='price__content-item decor')
+        return table
 
     def parse_data(self, soups):
 
-        table = self.get_soup(soups)
-        data = list()
+        table = self.parse_table(soups)
+        data = []
 
         if table is not None:
-            try:
-                for div in table[:3]:
-                    spans = div.findAll('span')
-                    title = spans[0].text.strip().replace('Лом меди (блеск)', 'Медь (блеск)') \
-                        .replace('Лом меди (кусок)', 'Медь (кусок)').replace('Лом меди (mix)', 'Медь (микс)')
+            for div in table[1:6]:
 
-                    price = spans[1].text.strip().replace(' ₽', '')
-                    price_ur = spans[2].text.strip().replace(' ₽', '')
+                title = self.Normalize_name(div.find(class_='price__content-item-wrap-title').text.strip())
+                if title is None:
+                    continue
+
+                price = self.Normalize_price(div.find(class_='price__content-item-cash').text.strip())
+                if price is None:
+                    continue
+
+                price_ur = self.Normalize_price(div.find(class_='price__content-item-cashless').text.strip())
+                if price_ur is None:
+                    continue
+
+                data.append([self.city, self.name, title, price, price_ur])
+
+        return data
+
+
+class Lom_74(Company):
+
+    @try_table
+    def parse_table(self, soups):
+
+        soup = soups[self.city][self.name]
+        table = soup.find(class_='prices__table').findAll(class_='prices__table__line')
+        return table
+
+    def parse_data(self, soups):
+
+        table = self.parse_table(soups)
+        data = []
+
+        if table is not None:
+            for li in table[3:9]:
+                div = li.findAll('div')
+                if len(div) == 3:
+
+                    title = self.Normalize_name(div[0].text)
+                    if title is None:
+                        continue
+
+                    price = self.Normalize_price(div[2].text)
+                    if price is None:
+                        continue
+
+                    price_ur = self.Normalize_price(0)
+                    if price_ur is None:
+                        continue
+
 
                     data.append([self.city, self.name, title, price, price_ur])
 
-                return data
-
-            except Exception as e:
-                logging.error(self.name + ' | ' + str(e))
-                return None
-
-
-class Vtormet:
-    def __init__(self):
-        self.name = "Втормет"
-        self.city = "Челябинск"
-
-
-    def get_soup(self, soups):
-        try:
-
-            soup = soups[self.city][self.name]
-            table = soup.find(class_="price__content", id='17').find(class_='price__content-list').findAll(
-                class_='price__content-item decor')
-            # print(soup)
-            # print(table)
-            return table
-
-        except Exception as e:
-
-            logging.error(self.name + ' | ' + str(e))
-            return None
-
-    def parse_data(self, soups):
-
-        table = self.get_soup(soups)
-        price_data = list()
-        # print(soup)
-
-        if table is not None:
-            try:
-                for div in table[1:6]:
-
-                    # print(li)
-                    title = div.find(class_='price__content-item-wrap-title').text.strip()
-
-                    title = title.replace('Лом меди, блеск', 'Медь (блеск)').replace('Лом меди, кусок', 'Медь (кусок)',
-                                                                                     2)
-                    title = title.replace('Лом меди, микс', 'Медь (микс)')
-
-                    price = div.find(class_='price__content-item-cash').text.strip()
-                    price_ur = div.find(class_='price__content-item-cashless').text.strip()
-                    #price__content-item-cashless
-
-                    if title in ["Медь (блеск)", "Медь (кусок)", "Медь (микс)"]:
-                        price_data.append([self.city, self.name, title, price, price_ur])
-
-                return price_data
-
-            except Exception as e:
-                logging.error(self.name + ' | ' + str(e))
-                return None
-
-
-class Lom_74:
-    def __init__(self):
-        self.name = "Лом_74"
-        self.city = "Челябинск"
-
-
-    def get_soup(self, soups):
-        try:
-
-            soup = soups[self.city][self.name]
-            table = soup.find(class_='prices__table').findAll(class_='prices__table__line')
-
-            return table
-
-        except Exception as e:
-
-            logging.error(self.name + ' | ' + str(e))
-            return None
-
-    def parse_data(self, soups):
-
-        table = self.get_soup(soups)
-        price_data = list()
-
-        if table is not None:
-            try:
-                for li in table[3:9]:
-                    div = li.findAll('div')
-                    if len(div) == 3:
-                        title = div[0].text
-                        price = div[2].text
-                        price_ur = 0
-
-                        title = title.replace('Блеск', 'Медь (блеск)').replace('Микс', 'Медь (микс)') \
-                            .replace('Кусок', 'Медь (кусок)')
-
-                        if title in ["Медь (блеск)", "Медь (кусок)", "Медь (микс)"]:
-                            price_data.append([self.city, self.name, title, price, price_ur])
-
-                return price_data
-
-            except Exception as e:
-                logging.error(self.name + ' | ' + str(e))
-                return None
+        return data
 
 
 def GetCompanies() -> list:
     return [
-        Dominant(),
-        Vtormet(),
-        Lom_74(),
+        Dominant("Доминант", "Челябинск"),
+        Vtormet("Втормет", "Челябинск"),
+        Lom_74("Лом_74", "Челябинск"),
 
     ]

@@ -4,11 +4,7 @@ import datetime
 import logging
 import time
 
-def int_or_float(obj):
-    try:
-        return float(obj)
-    except:
-        return 0.0
+
 
 
 async def add_query(db, pricelist):
@@ -43,6 +39,7 @@ async def Run(db):
     start_time = time.time()
 
     logging.info("Запуск парсера")
+
     cities = {
         "Chelyabinsk": Chelyabinsk.GetCompanies(),
         "Ekaterinburg": Ekaterinburg.GetCompanies(),
@@ -59,17 +56,12 @@ async def Run(db):
     tm = datetime.datetime.now()
     for city in cities.values():
         for company in city:
-
             price = company.parse_data(soup)
-
-
-            # Проверка данных
+            # Добавление времени
             for i in range(len(price)):
                 res = [tm]
                 res.extend(price[i])
                 price[i] = res
-                price[i][-1] = int_or_float(price[i][-1])
-                price[i][-2] = int_or_float(price[i][-2])
 
             pricelist.extend(price)
 

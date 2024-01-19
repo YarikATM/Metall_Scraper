@@ -6,7 +6,6 @@ import asyncio
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 
-
 def setup_logging() -> None:
     if config.DEBUG:
         logging.basicConfig(level=logging.DEBUG, filemode="a",
@@ -14,7 +13,6 @@ def setup_logging() -> None:
     else:
         logging.basicConfig(level=logging.INFO, filemode="a",
                             format="%(asctime)s %(levelname)s %(message)s")
-
 
 
 def setup_scheduler(db: Database, ) -> None:
@@ -40,12 +38,22 @@ def main():
 
     setup_scheduler(db)
 
-
-
     loop.run_forever()
 
 
+def test():
+    setup_logging()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
+    db = loop.run_until_complete(setup_database(loop))
+
+    loop.run_until_complete(Run(db))
+
 
 if __name__ == '__main__':
-    main()
-    # test()
+    if config.DEBUG:
+        test()
+    else:
+        main()
+
