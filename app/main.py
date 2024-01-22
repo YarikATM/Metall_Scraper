@@ -1,7 +1,7 @@
 import logging
 from Scraper import Run
-from env_reader_config import config
-from db import Database
+from app.config.env_reader_config import config
+from app.DB.db import Database
 import asyncio
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
