@@ -58,7 +58,7 @@ class Parce_pages:
 
 
 async def parce():
-    parcer = Parce_pages(urls, timeout=0, headers=headers)
+    parcer = Parce_pages(urls, timeout=15, headers=headers)
     data = await parcer.get_data()
     return data
 

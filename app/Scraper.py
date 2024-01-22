@@ -24,7 +24,6 @@ async def Run(db: Database):
     soup = await parce()
 
     pricelist = []
-    tm = datetime.datetime.now()
     for city in cities.values():
         for company in city:
             price = company.parse_data(soup)
