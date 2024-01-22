@@ -2,7 +2,7 @@ import aiohttp
 import asyncio
 import logging
 from bs4 import BeautifulSoup
-from app.config.config import urls, headers
+from config.config import urls, headers
 
 
 class Parce_pages:
