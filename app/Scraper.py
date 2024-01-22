@@ -3,42 +3,13 @@ from Cities import Ekaterinburg, Krasnoyarsk, Tyumen, St_Petersburg, Chelyabinsk
 import datetime
 import logging
 import time
+from DB.db import Database
 
 
-
-
-async def add_query(db, pricelist):
-    query_select = "SELECT t1.* " \
-                   "FROM Metall.Price t1 " \
-                   "LEFT JOIN Metall.Price t2 " \
-                   "    ON t1.Name = t2.Name AND t1.Company = t2.Company " \
-                   "    AND t1.City = t2.City AND t1.time < t2.time " \
-                   "WHERE t2.time IS NULL"
-
-    res = await db.execute_query(query_select)
-    if len(res) == 0:
-        return
-    res2 = []
-    for i in res:
-        res2.append(i[2:])
-
-    new_pricelist = []
-    for price in pricelist:
-        if tuple(price[1:]) in res2:
-            pass
-        else:
-            new_pricelist.append(price)
-
-    if len(new_pricelist) > 0:
-        query = "INSERT INTO Metall.Price (time, City, Company, Name, Price_Fiz, Price_Ur)  VALUES (%s,%s,%s,%s,%s,%s)"
-        await db.execute_many(query, new_pricelist)
-        logging.info(f"Обновлено {len(new_pricelist)} записей")
-
-
-async def Run(db):
+async def Run(db: Database):
     start_time = time.time()
-
     logging.info("Запуск парсера")
+
 
     cities = {
         "Chelyabinsk": Chelyabinsk.GetCompanies(),
@@ -57,13 +28,8 @@ async def Run(db):
     for city in cities.values():
         for company in city:
             price = company.parse_data(soup)
-            # Добавление времени
-            for i in range(len(price)):
-                res = [tm]
-                res.extend(price[i])
-                price[i] = res
-
             pricelist.extend(price)
 
-    await add_query(db, pricelist)
+
+    await db.compare_metal(pricelist)
     logging.info(f"The program completed the work in {round(time.time() - start_time, 2)} seconds")
