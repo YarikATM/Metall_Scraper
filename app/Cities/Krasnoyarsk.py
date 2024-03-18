@@ -235,12 +235,15 @@ class Cslk(Company):
         price_data = []
 
         if table is not None:
+
             for i in range(2, 4):
 
                 title = self.Normalize_name(table[i].find(class_='price__card-name').text.strip())
+
                 if title == "медь блеск/кусок":
 
-                    price = table[i].find(class_='price__card-coast--730').find("p").find("span").text.strip().split(
+
+                    price = table[i].find(class_='price__card-coast--730').find("p").text.strip().split(
                         '/')
                     price_data.append([self.city, self.name, "Медь (блеск)", self.Normalize_price(price[0]), 0.0])
                     price_data.append([self.city, self.name, "Медь (кусок)", self.Normalize_price(price[1]), 0.0])
@@ -250,7 +253,7 @@ class Cslk(Company):
                         continue
 
                     price = self.Normalize_price(
-                        table[i].find(class_='price__card-coast--730').find("p").find("span").text.strip())
+                        table[i].find(class_='price__card-coast--730').find("p").text.strip())
                     if price is None:
                         continue
 

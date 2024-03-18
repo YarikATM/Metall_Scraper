@@ -32,7 +32,7 @@ class Company:
         try:
             return float(price)
         except:
-            logging.warning(f"{self.city} {self.name} [{price}] not in normal form")
+            logging.warning(f"{self.city} {self.name} [{price}] price not in normal form")
             return 0.0
 
 
@@ -128,8 +128,10 @@ normal_dict = {
     "медь в масле": None,
     "медь отборка": None,
     "медь блеск тонкий": None,
-    # "": None,
-    # "": None,
+    "чермет": None,
+    "лом 3а": None,
+    "лом 5а/12а": None,
+    "Дог.": None,
     # "": None,
     # "": None,
 
