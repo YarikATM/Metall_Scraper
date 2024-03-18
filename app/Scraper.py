@@ -27,7 +27,8 @@ async def Run(db: Database):
     for city in cities.values():
         for company in city:
             price = company.parse_data(soup)
-            pricelist.extend(price)
+            if price is not None:
+                pricelist.extend(price)
 
 
     await db.compare_metal(pricelist)
