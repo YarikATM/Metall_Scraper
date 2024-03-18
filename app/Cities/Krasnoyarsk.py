@@ -1,5 +1,5 @@
 import logging
-from Base import Company, try_table
+from Base import Company, try_table, try_parse
 
 
 class Zsvr(Company):
@@ -11,6 +11,7 @@ class Zsvr(Company):
         table = soup.find(class_='ts-table-section').find('tbody').findAll(itemtype="http://schema.org/Product")
         return table
 
+    @try_parse
     def parse_data(self, soups):
 
         table = self.parse_table(soups)
@@ -46,6 +47,7 @@ class Vtormet(Company):
         table = soup.find(class_='price2').find('tbody').findAll('tr')
         return table
 
+    @try_parse
     def parse_data(self, soups):
 
         table = self.parse_table(soups)
@@ -81,6 +83,7 @@ class Sibintek(Company):
         table = soup.find(class_='tablepress').find('tbody').findAll(class_='product searchtable')
         return table
 
+    @try_parse
     def parse_data(self, soups):
 
         table = self.parse_table(soups)
@@ -116,6 +119,7 @@ class Alkom(Company):
         table = soup.find(class_='wp-block-table is-style-stripes').find('table').find('tbody').findAll('tr')
         return table
 
+    @try_parse
     def parse_data(self, soups):
 
         table = self.parse_table(soups)
@@ -151,6 +155,7 @@ class Mbaza(Company):
         table = soup.find('body').findAll('li')
         return table
 
+    @try_parse
     def parse_data(self, soups):
 
         table = self.parse_table(soups)
@@ -185,6 +190,7 @@ class Krasmet(Company):
         table = soup.find(class_="table1").find("tbody").findAll('tr')
         return table
 
+    @try_parse
     def parse_data(self, soups):
 
         table = self.parse_table(soups)
@@ -222,6 +228,7 @@ class Cslk(Company):
             .findAll(class_='accordion-line')
         return table
 
+    @try_parse
     def parse_data(self, soups):
 
         table = self.parse_table(soups)

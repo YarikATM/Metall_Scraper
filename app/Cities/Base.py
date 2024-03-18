@@ -52,6 +52,21 @@ def try_table(func):
 
     return wrapper
 
+
+
+def try_parse(func):
+    def wrapper(self, *args, **kwargs):
+        try:
+            price = func(self, *args, **kwargs)
+
+            return price
+
+        except Exception as e:
+            logging.error(f"{self.city} {self.name} ошибка при получении данных: {str(e)}")
+            return None
+
+    return wrapper
+
 # class (Company):
 #
 #     @try_table
