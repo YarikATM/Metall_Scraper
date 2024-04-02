@@ -30,6 +30,7 @@ class Company:
 
     def Normalize_price(self, price: str):
         try:
+            price = price.replace(',', '.')
             return float(price)
         except:
             logging.warning(f"{self.city} {self.name} [{price}] price not in normal form")
