@@ -30,6 +30,8 @@ class Company:
 
     def Normalize_price(self, price: str):
         try:
+            if price == "0":
+                return 0.0
             price = price.replace(',', '.')
             return float(price)
         except:

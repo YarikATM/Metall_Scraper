@@ -33,7 +33,7 @@ class Parce_pages:
                 await asyncio.gather(*tasks)
 
         except Exception as e:
-            logging.error(self.name + " | " + str(e))
+            logging.exception(self.name + " | " + str(e))
 
     async def get_page(self, session, name_url, name_city):
         try:
@@ -49,7 +49,7 @@ class Parce_pages:
                 self.soup_data[name_city][name_url] = soup
 
         except Exception as e:
-            logging.error(self.name + " | " + str(e))
+            logging.exception(self.name + " | " + str(e))
 
     async def get_data(self):
         await self.load_page()
